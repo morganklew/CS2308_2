@@ -1,0 +1,376 @@
+// This program displays a menu and asks the user to make a
+// selection. A do-while loop repeats the program until the
+// user selects item 6 from the menu. It creates and manages
+// an inventory for a small business.
+
+#include <iostream>
+#include <iomanip>
+#include <string>
+
+using namespace std;
+
+//global variables
+const int MAX_CAPACITY = 100;
+
+ // Constants for menu choices
+   const int ADD_NEW = 1,
+             REMOVE = 2,
+             ADJUST_QUANTITY = 3,
+             DISPLAY_INFORMATION = 4,
+             DISPLAY_INVENTORY = 5,
+             QUIT = 6;
+
+//globally defined structure
+struct inventory{
+    string itemName;
+    string locator;
+    int quantity;
+    float itemPrice;
+};
+
+//***************************************************
+// binarySearch: searches the array in the binary style
+//
+// param-1: calls the structure and creates array
+//param-2: integer to mark place in array
+//param-3: the value the search is looking for, the string
+//***************************************************
+
+int binarySearch(inventory data[], int size, string value)
+{
+   int first = 0,             // First array element
+       last = size - 1,       // Last array element
+       middle,                // Mid point of search
+       position = -1;         // Position of search value
+   bool found = false;        // Flag
+
+   while (!found && first <= last)
+   {
+      middle = (first + last) / 2;     // Calculate mid point
+      if (data[middle].itemName.compare(value) == 0)      // If value is found at mid
+      {
+         found = true;
+         position = middle;
+      }
+      else if (data[middle].itemName.compare(value) > 0)   // If value is in lower half
+         last = middle - 1;
+      else
+         first = middle + 1;           // If value is in upper half
+   }
+   return position;
+}
+
+//***************************************************
+// bubbleSort: sorts the data in the bubble way
+//
+// param-1: calls the structure and creates array
+// param-2: the place in the array
+//***************************************************
+
+void bubbleSort(inventory data[], int counter)
+{
+   bool swap; // flag
+   inventory temp; // inventory
+
+   do
+   {
+      swap = false;
+      for (int count = 0; count < (counter - 1); count++)
+      {
+         if (data[count].itemName.compare(data[count+1].itemName) > 0)
+                    {
+            temp = data[count];
+            data[count] = data[count + 1];
+            data[count + 1] = temp;
+            swap = true;
+         }
+      }
+   } while (swap);
+}
+
+//*****************************************************************
+// addNewItem: adds a new item to the array for inventory
+//
+// param-1: calls the structure and creates array
+// param-2: the place in the array
+//*****************************************************************
+
+void addNewItem (inventory data[], int& counter){
+
+    string productName; // name of product for input
+
+    if (counter >= MAX_CAPACITY){
+        cout << "Your inventory is full, unable to add product." << endl;
+        return;
+    }
+    else {
+        cout << "Enter product name: " << endl;
+        cin >> ws;
+        getline(cin, productName);
+    }
+
+    if (counter > 0){
+        if (binarySearch (data, counter, productName) == 0){
+            cout << "This product is already in your inventory." << endl;
+            return;
+        }
+    }
+    data[counter].itemName = productName;
+
+    cout << "Enter location specifics:" << endl;
+    cin >> data[counter].locator;
+
+    cout << "Enter quantity of product:" << endl;
+    cin >> data[counter].quantity;
+
+    while (data[counter].quantity < 0){
+        cout << "A new product must have a quantity greater than 0."
+             << endl
+             << "Re-enter quantity:"
+             <<endl;
+        cin >> data[counter].quantity;
+    }
+        cout << "Enter price of product:" << endl;
+        cin >> data[counter].itemPrice;
+
+    while (data[counter].itemPrice <= 0){
+        cout << "You can't make money if things are free."
+             <<  endl
+             << "Re-enter price:" << endl;
+        cin >> data[counter].itemPrice;
+    }
+
+    cout << "New item added: " << data[counter].itemName << endl;
+    counter++;
+}
+
+//************************************************************
+//removeItem: removes a product from the inventory/array
+//
+// param-1: calls the structure and creates array
+// param-2: the place in the array
+//************************************************************
+
+void removeItem (inventory data[], int& counter){
+
+    string itemName; // product name for input
+    int number; // variable to set the location of array to
+
+    if (counter == 0){
+        cout << "Inventory is empty, nothing to remove." << endl;
+        return;
+    }
+    cout << "Enter product's name: " << endl;
+    cin >> ws;
+    getline(cin, itemName);
+
+    number = binarySearch (data, counter, itemName);
+
+        if (number < 0){
+            cout << "Item not found, unable to remove" << endl;
+            return;
+        }
+        else if (number != counter--){
+            for (number; number < counter; number++){
+                data[number] = data[number++];
+            }
+        counter--;
+        cout << "Your product has been removed." << endl;
+
+        }
+
+}
+//*******************************************************
+// adjustQuantity: Changes the quantity a certain product
+//
+// param-1: calls the structure and creates array
+// param-2: the place in the array
+//********************************************************
+
+void adjustQuantity (inventory data[], int counter){
+
+    int l; // variable to set array location to
+    int changeQ; // input for quantity change
+    string productName; // input for product name
+
+    cout << "Enter product name:" << endl;
+    cin >> ws;
+    getline(cin, productName);
+
+    l = binarySearch (data, counter, productName);
+
+        if (l < 0){
+            cout << "Item does not exist in inventory, cannot adjust" << endl;
+            return;
+        }
+    cout << "Enter change in quantity: " << endl;
+    cin >> changeQ;
+
+    data[l].quantity += changeQ;
+
+}
+//***************************************************
+// displayData: displays one certain product and that
+// product's information.
+//
+// param-1: calls the structure and creates array
+// param-2: the place in the array
+//***************************************************
+
+
+void displayData (inventory data [], int counter){
+
+    int number; // variable to set array location yo
+    string productName; // input variable for product name
+
+    cout << "Enter the product name: " << endl;
+    cin >> ws;
+    getline(cin, productName);
+
+    number = binarySearch (data, counter, productName);
+        if (number < 0){
+            cout << "This product was not found.";
+            return;
+        }
+        else {
+            cout << "Product name: " << productName
+                 << endl
+                 << "Location of product: " << data[number].locator
+                 << endl
+                 << "Quantity: " << data[number].quantity
+                 << endl
+                 << fixed << setprecision(2)
+                 << "Product price: " << data[number].itemPrice
+                 << endl;
+                 return;
+        }
+
+}
+
+//********************************************************
+// showArray: Shows all the data within the array of the
+// structure
+//
+// param-1: calls the structure and creates array
+// param-2: the place in the array
+//********************************************************
+void showArray(inventory data[], int counter)
+{
+
+
+    cout << "Product name"
+         << "   "
+         << "Location"
+         << "   "
+         << "Quantity"
+         << "   "
+         << "Price"
+         << endl;
+
+
+   for (int i = 0; i < counter; i++){
+      cout << data[i].itemName << "     "
+           << data[i].locator << "      "
+           << data[i].quantity << "     "
+           << fixed << setprecision(2)
+           << data[i].itemPrice << "     ";
+      cout << endl << endl;
+   }
+   cout << endl;
+}
+//**************************************************
+// menu: Displays the menu for the options to manage the
+// inventory
+//
+// no parameters
+//***************************************************
+
+int menu (){
+
+int menuChoice; // variable for menu choice
+
+      // Display the menu.
+      cout << "\n\t\tInventory Menu\n\n"
+           << "1. Add a new product to the inventory\n"
+           << "2. Remove a product from the inventory\n"
+           << "3. Adjust the quantity of the product\n"
+           << "4. Display information for a product\n"
+           << "5. Display the inventory\n"
+           << "6. Quit\n"
+           << "Enter your choice: ";
+      cin >> menuChoice;
+
+    return menuChoice;
+}
+
+//***************************************************
+// inputValidation: validates input when choosing from
+// the menu choices and asks to try again
+//
+// param-1: the choice the user selects
+//***************************************************
+void inputValidation (int choice){
+
+if (choice == 1 || 2 || 3 || 4 || 5 || 6);
+
+    else {
+        cout << "Invalid entry, try again." << endl;
+
+    }
+}
+
+//***************************************************
+// main: (as seen above)
+// This program displays a menu and asks the user to make a
+// selection. A do-while loop repeats the program until the
+// user selects item 6 from the menu. It creates and manages
+// an inventory for a small business.
+// no parameters
+//***************************************************
+int main()
+{
+
+   // Variables
+   int choice; // Menu choice
+   int counter = 0; // counter
+   inventory data [MAX_CAPACITY]; // calling the structure/array
+
+   do {
+   choice = menu();
+
+      // Validate and process the user's choice.
+      if (choice != QUIT)
+      {
+
+         // Respond to the user's menu selection.
+         switch (choice)
+         {
+            case ADD_NEW:
+                addNewItem (data, counter);
+                break;
+            case REMOVE:
+                removeItem (data, counter);
+                break;
+            case ADJUST_QUANTITY:
+                adjustQuantity (data, counter);
+                break;
+            case DISPLAY_INFORMATION:
+                displayData (data, counter);
+                break;
+            case DISPLAY_INVENTORY:
+                bubbleSort (data, counter);
+                showArray (data, counter);
+                break;
+         }
+      }
+            // Validate the menu selection.
+      while (choice > 6 || choice < 1){
+        inputValidation (choice);
+        cin >> choice;
+      }
+   }
+    while (choice != QUIT);
+   return 0;
+
+}
+
